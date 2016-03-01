@@ -198,6 +198,170 @@ public class DataProviderClass {
 
 ```
 
+### TestNG DataProvider
+``` java
+
+/*
+DataProviderTest Class
+*/
+
+public class DataProviderTest {
+	//------------------
+	//value injecting using TestNG XML Parameter 
+	//<parameter name="username" value="selvi2"></parameter>
+	//<parameter name="password" value="password123"></parameter>
+	@Parameters({"username", "password"})
+	@Test	
+	public void LoginUsingXMLParameter(String username, String password) {
+		System.out.println("Data taken from the xml file is " + username + " " + password);
+	}
+	
+	//------------------
+	//DataProvider
+	@DataProvider
+	public Object[][] getUserCredentialData() {
+		return new Object[][]{
+			{"selvi2", "password123"}, 
+			{"selvi2", "password123"}
+		};
+	}
+	
+	@Test(dataProvider="getUserCredentialData")
+	public void instanceDbProvider(String username, String password) {
+		System.out.println("Data taken from class Instance  is " + username + " " + password);
+	}	
+	
+	//------------------
+	//Static DataProvider
+	@Test(dataProvider="productionKey", dataProviderClass=DataProviderSource.class)
+	public void client1Test(Integer p) {
+		System.out.println("Client1 testing: Data(" + p + ")");
+	}  
+
+	@Test(dataProvider="QAKey", dataProviderClass=DataProviderSource.class)
+	public void client2Test(Integer p) {
+		System.out.println("Client2 testing: Data(" + p + ")");
+	} 
+	
+	//------------------
+	//Data based on the Method name
+	@Test(dataProvider="DataBasedOnMethodName", dataProviderClass=DataProviderSource.class)
+	public void TestCase01(String data) {
+		System.out.println("Scenario testing: Data(" + data + ")");
+	}
+
+	@Test(dataProvider="DataBasedOnMethodName", dataProviderClass=DataProviderSource.class)
+	public void TestCase02(String data) {
+		System.out.println("Scenario testing: Data(" + data + ")");
+	}
+
+	@Test(dataProvider="DataBasedOnMethodName", dataProviderClass=DataProviderSource.class)
+	public void commonScenarios(String data) {
+		System.out.println("Common Scenarios testing: Data(" + data + ")");
+	}
+
+	//------------------
+	//Data based on the test name given in the testng.xml
+	//<test name="Unit"> or <test name="Acceptance"> or <test name="Integration">
+
+	@Test(dataProvider="TestType", dataProviderClass=DataProviderSource.class)
+	public void acceptanceTest(String data) {
+		System.out.println("Acceptance testing: Data(" + data + ")");
+	}
+
+	@Test(dataProvider="TestType", dataProviderClass=DataProviderSource.class)
+	public void integrationTest(String data) {
+		System.out.println("Integration testing: Data(" + data + ")");
+	}	
+
+	//------------------
+	//Get the strongly typed data
+	@Test(dataProvider="userData")
+	public void empTest(UserData user) {
+		System.out.println("Username : (" + user.username + ")");
+		System.out.println("Password : (" + user.password + ")");
+	}	
+	
+	@DataProvider(name="userData") 
+	public Object[][] getUserData() {
+		return new Object[][]{{new UserData("Selvi2", "password123")}, {new UserData("Selvi1", "password123")}};
+	}
+	
+	@DataProvider
+     public Object[][] UserCredentials(){
+      Object[][] Credentials = new Object[3][2];
+
+      Credentials[0][0] = "UserID1";
+      Credentials[0][1] = "Password1";
+
+      Credentials[1][0] = "UserID2";
+      Credentials[1][1] = "Password2";
+
+      Credentials[2][0] = "UserID3";
+      Credentials[2][1] = "Password3";
+
+      return Credentials;
+     }
+	
+}
+
+/*
+DataProviderSource Class
+*/
+public class DataProviderSource {
+
+	@DataProvider(name="productionKey")
+	public static Object[][] getClient1Data() {
+		return new Object[][]{{17755}};		
+	}
+	
+	@DataProvider(name="QAKey")
+	public static Object[][] getClient2Data() {
+		return new Object[][]{{334442}};		
+	}
+	
+	@DataProvider(name="DataBasedOnMethodName")
+	public static Object[][] getScenarioData(Method method) {		
+		String testCase = method.getName();
+		if ("TestCase01".equals(testCase)) {
+			return new Object[][]{{"data key 17755"}};
+		} else if ("TestCase02".equals(testCase)) {
+			return new Object[][]{{"data key 334442"}};
+		} else {
+			return new Object[][]{{"Common scenario data"}};
+		}
+	}	
+	
+	@DataProvider(name="TestType")
+	public static Object[][] getTestTypeData(ITestContext context) {		
+		String testName = context.getName();
+		if ("Integration".equals(testName)) {
+			return new Object[][]{{"Integration test data"}};
+		} else if ("Acceptance".equals(testName)) {
+			return new Object[][]{{"Acceptance test data"}};
+		} else {
+			return new Object[][]{{"Common test data"}};
+		}
+	}	
+}
+
+/*
+UserData Class
+*/
+
+public class UserData {
+	private String username;
+	private String password;
+
+	public Employee(String username, password) {
+		this.username = username;
+		this.password = password;
+	}
+}
+
+```
+
+
 ### TestNG Listeners
 ``` java
 
