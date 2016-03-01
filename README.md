@@ -248,15 +248,25 @@ Assert.assertNotNull(txt1.getAttribute("disabled"));
 
 ### testng.xml
 ``` xml
+
 <suite name="Suite One" parallel="classes" thread-count="2" time-out="3000">
+	<listeners>
+		<listener class-name="mylogger.CustomerLogging"/>
+		<listener class-name="mylogger.CustomerReporter"/>
+	</listeners>
+	
 	<test name="Test One" >
-		<parameter name="browser" value="FFX" />
+	
+		<parameter name="Browser" value="Firefox" />
+	
 		<classes>
 			<class name="TestNGOnePack.ClassOne" />  
 				<methods>
 					 <include name="testmethodone" />
+					 <exclude name="testmethodtwo" />
 					 <exclude name=".*two.*"/>
 				</methods>
+				
 			<class name="TestNGOnePack.ClassOne">
 				<methods>
 					<include name=".*two.*"/>
@@ -273,15 +283,47 @@ Assert.assertNotNull(txt1.getAttribute("disabled"));
 
 	<test name="Test One"  preserve-order="true" >
 		<packages>
-			<package name=".*">
+		
+			<package name="TestNGTwoPack" />
+			<package name="TestNGThreePack" />
+			
+			<package name="com.selvenium.*">
 			   <include name="TestNGOnePack" />
 			   <exclude name="TestNGThreePack" />
 			</package> 
 			
-			<package name="TestNGTwoPack" />
-			<package name="TestNGThreePack" />
 		</packages>
 	</test> 
+	
+	<test name="Test One">
+		<groups>
+			<run>
+				<include name="functionaltest" />
+				<exclude name="UIDataValidation" />
+			</run>
+		</groups>
+		
+		<groups>
+			<define name="group1">
+				<include name="functionaltest" />
+				<include name="UIDataValidation" />
+			</define>
+			<define name="group2">
+				<include name="UIDataValidation" />
+			</define>
+			<run>
+				<include name="group1" />
+			</run>
+		</groups>
+		
+		<groups>
+			<dependencies>
+				<group name="depedent-group" depends-on="test1  test2"/>
+				<group name="depedent-group" depends-on="starts-with.*"/>
+			</dependencies>
+		</groups>
+	</test>
 </suite>
+
 
 ```
