@@ -5,15 +5,15 @@
 
 ### Hierarchy of TestNG Annotations
 
--<BeforeSuite>
-	--<BeforeTest>
-		--<BeforeClass>
-			--<BeforeMethod>
-				--<Test>
-			--<AfterMethod>
-		--<AfterClass>
-	--<AfterTest>
---<AfterSuite>
+|--<BeforeSuite>
+	|--<BeforeTest>
+		|--<BeforeClass>
+			|--<BeforeMethod>
+				|--<Test>
+			|--<AfterMethod>
+		|--<AfterClass>
+	|--<AfterTest>
+|--<AfterSuite>
 
 ``` java
 
