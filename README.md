@@ -1,6 +1,6 @@
 # TestNGCodeSnippet
 
-
+TestNG is integral part of my test cases. This is my collection for TestNG - Selvi.
 
 ##Table of Contents
 
