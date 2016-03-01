@@ -363,7 +363,243 @@ public class UserData {
 
 
 ### TestNG Listeners
+
+``` xml
+<listeners>
+        <listener class-name="com.mytestng.MyTestNGListener" />
+</listeners>
+```
+
 ``` java
+public class MyTestNGListener implements IExecutionListener, IAnnotationTransformer
+		,ISuiteListener, ITestListener, IMethodInterceptor, IInvokedMethodListener, IHookable, IReporter    {
+	private long startTime;
+
+	//IExecutionListener
+	@Override
+	public void onExecutionStart() {
+		startTime = System.currentTimeMillis();
+		System.out.println("TestNG is going to start");	
+		System.out.println("Notify by mail that TestNG is going to start");			
+	}
+
+	@Override
+	public void onExecutionFinish() {
+		System.out.println("Notify by mail, TestNG is finished");
+		System.out.println("TestNG has finished, took around " + (System.currentTimeMillis() - startTime) + "ms");
+	}
+	
+	//IAnnotationTransformer
+	
+	@Override
+	public void transform(ITestAnnotation annotation, Class testClass, Constructor testConstructor, Method testMethod) {		
+		if (testMethod.getName().equals("t1")) {
+			System.out.println("set data provider for " + testMethod.getName()); 
+			annotation.setDataProviderClass(DataProviderFactory.class);
+			annotation.setDataProvider("getDp1");
+		} else if (testMethod.getName().equals("t2")) {
+			System.out.println("set data provider for " + testMethod.getName()); 
+			annotation.setDataProviderClass(DataProviderFactory.class);
+			annotation.setDataProvider("getDp2");
+		} else if (testMethod.getName().equals("t3")) {
+			System.out.println("Disable " + testMethod.getName()); 
+			annotation.setEnabled(false);
+		}
+	}
+	
+	//ISuiteListener
+	
+	@Override
+	public void onStart(ISuite suite) {
+		System.out.println("Start suite " + suite.getName());
+		XmlSuite xmlSuite = suite.getXmlSuite();
+		if (!xmlSuite.getTests().isEmpty()) {
+			Map parms = new HashMap();
+			parms.put("ui", "web");
+			System.out.println("Set ui param value");
+			xmlSuite.setParameters(parms);
+		}		
+	}
+
+	@Override
+	public void onFinish(ISuite suite) {
+		System.out.println("Finish suite " + suite.getName());
+	}
+	
+	//ITestListener
+	@Override
+	public void onTestStart(ITestResult result) {
+		System.out.println("on test method " +  getTestMethodName(result) + " start");
+	}
+
+	@Override
+	public void onTestSuccess(ITestResult result) {
+		System.out.println("on test method " + getTestMethodName(result) + " success");
+	}
+
+	@Override
+	public void onTestFailure(ITestResult result) {
+		System.out.println("on test method " + getTestMethodName(result) + " failure");
+	}
+
+	@Override
+	public void onTestSkipped(ITestResult result) {
+		System.out.println("test method " + getTestMethodName(result) + " skipped");
+	}
+
+	@Override
+	public void onTestFailedButWithinSuccessPercentage(ITestResult result) {
+		System.out.println("test failed but within success % " + getTestMethodName(result));
+	}
+
+	@Override
+	public void onStart(ITestContext context) {
+		System.out.println("on start of test " + context.getName());
+	}
+
+	@Override
+	public void onFinish(ITestContext context) {
+		System.out.println("on finish of test " + context.getName());
+	}
+	
+	private static String getTestMethodName(ITestResult result) {
+		return result.getMethod().getConstructorOrMethod().getName();
+	}
+	
+	//IMethodInterceptor
+	
+	@Override
+	public List intercept(List methods,
+			ITestContext context) {
+		List result = new ArrayList();
+		for (IMethodInstance m : methods) {
+			Test test = m.getMethod().getMethod().getAnnotation(Test.class);
+			Set groups = new HashSet();
+			for (String group : test.groups()) {
+				groups.add(group);
+			}
+			if (groups.contains("perf")) {
+				result.add(m);
+			} else {
+				String testMethod = m.getMethod().getMethod().getName();
+				System.out.println(testMethod
+						+ " not a performance test so remove it");
+			}
+		}
+		return result;
+	}
+	
+	//IInvokedMethodListener 
+	@Override
+    public void beforeInvocation(IInvokedMethod method, ITestResult testResult) {
+        System.out.println("before invocation of " + method.getTestMethod().getMethodName());
+    }
+
+    @Override
+    public void afterInvocation(IInvokedMethod method, ITestResult testResult) {
+        System.out.println("after invocation " + method.getTestMethod().getMethodName());
+    }
+	
+	//IHookable 
+	@Override
+	public void run(IHookCallBack callBack, ITestResult testResult) {
+		Object[] parms = callBack.getParameters();
+		if (parms[0].equals("perftest")) {
+			System.out.println("Skip for method because it not perftest");			
+		} else {
+			callBack.runTestMethod(testResult);
+		}
+	}
+	
+	//IReporter 
+	@Override
+	public void generateReport(List xmlSuites, List suites, String outputDirectory) {
+		System.out.println("*** Login Screen Report ***");
+		
+		ISuite suite = suites.get(0);
+		Map<String, Collection> methodsByGroup = suite.getMethodsByGroups();
+		Map<String, ISuiteResult> tests = suite.getResults();
+		for (String key : tests.keySet()) {
+			System.out.println("Key: " + key + ", Value: " + tests.get(key));
+		}
+		
+		Collection suiteResults = tests.values();
+		ISuiteResult suiteResult = suiteResults.iterator().next();
+		ITestContext testContext = suiteResult.getTestContext();
+		Collection perfMethods = methodsByGroup.get("perf");
+		IResultMap failedTests = testContext.getFailedTests();
+		for (ITestNGMethod perfMethod : perfMethods) {
+			Set testResultSet = failedTests.getResults(perfMethod);
+			for (ITestResult testResult : testResultSet) {
+				System.out.println("Test " + testResult.getName() + " failed, error " + testResult.getThrowable());
+			}
+		}
+		
+		IResultMap passedTests = testContext.getPassedTests();
+		for (ITestNGMethod perfMethod : perfMethods) {
+			Set testResultSet = passedTests.getResults(perfMethod);
+			for (ITestResult testResult : testResultSet) {
+				System.out.println("Test " + testResult.getName() + " passed, time took " + 
+			(testResult.getStartMillis() - testResult.getEndMillis()));
+			}
+		}
+		System.out.println("*** End of Login Screen Report ***");
+	}
+	
+}
+
+
+
+public class MyTestNGListenerTestExample {
+	
+	//Test Method for IAnnotationTransformer test
+	@Test
+	public void t1(String param) {
+		System.out.println("Method is t1, parameter is " + param);
+	}
+	
+	//Test Method for IAnnotationTransformer test
+	@Test
+	public void t2(String param) {
+		System.out.println("Method is t2, parameter is " + param);
+	}
+	
+	//Test Method for IAnnotationTransformer test
+	@Test
+	public void t3() {
+		System.out.println("Method is t3");
+	}		
+	
+	//Test Method for ISuiteListener test
+	@Parameters("ui")
+	@BeforeSuite
+	public void beforeSuite(String parm) {
+		System.out.println("before suite, ui value: " + parm);
+	}
+	
+	@Test
+	public void t() {
+		System.out.println("test method");
+	}
+	
+	@AfterSuite
+	public void afterSuite() {
+		System.out.println("after suite");
+	}
+	
+	
+	//IMethodInterceptor
+	@Test(groups="perf")
+	public void t1() {
+		System.out.println("test method: t1");
+	}
+	
+	@Test
+	public void t2() {
+		System.out.println("test method: t2");
+	}
+	
+}
 
 ```
 
