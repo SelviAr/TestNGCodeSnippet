@@ -175,8 +175,26 @@ public class TestMethods {
 	public void testThisShouldFail() {
 		while (true);
 	}
-
+	
+	@Test 
+	@Parameters({ "OptionalValue"  })
+	public void Test1(@Optional("OptionalValue" ) DBConfigString, String value) {
+	
+	}
+	
+	@Test(dataProvider = "data-provider", dataProviderClass=DataProviderClass.class)
+	public void testMethod(String data) {
+			System.out.println("Data is: " + data);
+	}
 }
+
+public class DataProviderClass {
+	@DataProvider(name="data-provider")
+	public static Object[][] dataProviderMethod(){
+		return new Object[][] { { "data one" }, { "data two" } };
+	}
+}
+
 
 ```
 
