@@ -79,8 +79,88 @@ public class TestNGHierarchy {
 
 ```
 
-### TestNG Listeners
+### TestNG Methods
 ``` java
+
+public class TestMethods {
+
+	@Test(priority = 1 )
+	public void Login() {
+		System.out.println("@Test");
+	}
+	
+	@Test(enabled = true)
+	public void test2() {
+		Assert.assertEquals(true, true);
+	}
+
+	@Test(enabled = false)
+	public void test3() {
+		Assert.assertEquals(true, true);
+	}
+	
+	@Test(alwaysRun = true, description = “test method”)
+	public void sss() {
+		System.out.println("@Test");
+	}
+	
+	@DataProvider
+	public Object[][] UserDataProvider() {
+		return new Object[][]{
+			{ 'Selvi Arm', 'selvia', 'selvi@xyz.com' },
+			{ 'Vik Pal', 'vikp', 'coolvik@xyz.com' },
+			{ 'Aksha Pal', 'aksha', 'aksha@xyz.com' }
+		};
+	}
+	
+	// This test will run 3 times
+	@Test(dataProvider = "UserDataProvider")
+	public void CharToASCIITest(String FullName, String UserID, String EmailID) {
+		   Assert.assertEquals(EmailID, 'aksha@xyz.com');
+	}
+	
+	@Test (groups = { "UI", "Regression" })
+	@Parameters({ "DBConfigString", "Browser" })
+	public void createConnection(String DBConfigString, String Browser) {
+	
+	}
+	
+	@Test(dependsOnGroups = {"database","selenium-test"})
+	public void runFinal() {
+		System.out.println("runFinal");
+	}
+
+	@Test(dependsOmethods = "login")
+	public void runFinal() {
+		System.out.println("runFinal");
+	}
+	
+	
+	@Test(invocationCount = 7) 
+	public void sss() {
+		System.out.println("@Test");
+	}
+	
+	@Test(invocationCount = 7, invocationTimeOut = 30 )
+	public void sss() {
+		System.out.println("@Test");
+	}
+	
+	/*
+	   * Example : Multiple expected exceptions
+	   * Test is success if either of the exception is thrown
+	   */
+	@Test(expectedExceptions = ArithmeticException.class)
+	public void divisionWithException() {
+		int i = 1 / 0;
+	}
+	
+	@Test(timeOut = 1000)
+	public void testThisShouldFail() {
+		while (true);
+	}
+
+}
 
 ```
 
