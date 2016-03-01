@@ -2,6 +2,15 @@
 
 
 
+##Table of Contents
+
+- [Hierarchy of TestNG Annotations](#hierarchy-of-testng-annotations)
+- [TestNG Methods](#testng-methods)
+- [TestNG DataProvider](#testng-dataprovider)
+- [TestNG Listeners](#testng-listeners)
+- [Asserts](#asserts)
+- [testng.xml](#testngxml)
+
 
 ### Hierarchy of TestNG Annotations
 
