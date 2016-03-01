@@ -113,6 +113,22 @@ public class TestMethods {
 		};
 	}
 	
+	@DataProvider
+	 public Object[][] UserCredentials(){
+	  Object[][] Credentials = new Object[3][2];
+	  
+	  Credentials[0][0] = "UserID1";
+	  Credentials[0][1] = "Password1";
+	  
+	  Credentials[1][0] = "UserID2";
+	  Credentials[1][1] = "Password2";
+	  
+	  Credentials[2][0] = "UserID3";
+	  Credentials[2][1] = "Password3";
+
+	  return Credentials;
+	 }
+ 
 	// This test will run 3 times
 	@Test(dataProvider = "UserDataProvider")
 	public void CharToASCIITest(String FullName, String UserID, String EmailID) {
@@ -169,8 +185,103 @@ public class TestMethods {
 
 ```
 
-Asserts
+### Asserts
 ``` java
+
+Assert.assertEquals
+Assert.assertNotEquals
+Assert.assertTrue
+Assert.assertFalse
+Assert.assertNull
+Assert.assertNotNull
+Assert.assertSame
+Assert.assertNotSame
+Assert.fail
+Assert.assertThrows
+Assert.assertEqualsNoOrder
+
+Assert.assertEquals(Actualtext, "Selvi");
+Assert.assertNotEquals(Actualtext, "Selvi", "Expected and actual is same");
+
+Assert.assertTrue(chk1.isSelected());
+Assert.assertFalse(chk2.isSelected());
+
+Assert.assertNull(txt1.getAttribute("disabled"));  
+Assert.assertNotNull(txt1.getAttribute("disabled")); 
+ 
+ 
+ 
+  BigDecimal b1 = new BigDecimal("1.0");
+  BigDecimal b2 = new BigDecimal("1.0");
+  BigDecimal b3 = b1;
+ 
+  int i1 = 10;
+  int i2 = 10;
+ 
+  @Test
+  public void BigDecimaltest() throws Exception {
+    // if(b1 == b2)
+    assertSame(b1, b2);    // THIS TEST WILL FAIL
+ 
+    // b1.equals(b2)
+    assertEquals(b1, b2);  // should pass
+ 
+    // (b1 == b3)
+    assertSame(b1, b3);    // will pass
+ 
+    //(b1.equals(b3))
+    assertEquals(b1, b3);  // will pass
+  }
+ 
+  @Test
+  public void intTest() throws Exception {
+    // if(i1 == i2)
+    assertSame(i1, i2);    // will pass
+ 
+    // if(i1 == i2)
+    assertEquals(i1, i2);  // will pass
+  }
+
+
 
 ```
 
+### testng.xml
+``` xml
+<suite name="Suite One" parallel="classes" thread-count="2" time-out="3000">
+	<test name="Test One" >
+		<parameter name="browser" value="FFX" />
+		<classes>
+			<class name="TestNGOnePack.ClassOne" />  
+				<methods>
+					 <include name="testmethodone" />
+					 <exclude name=".*two.*"/>
+				</methods>
+			<class name="TestNGOnePack.ClassOne">
+				<methods>
+					<include name=".*two.*"/>
+				</methods>
+			</class>
+		</classes>
+	</test> 
+	
+	<test name="Test Two" >
+		<classes>
+			<class name="Testng_Pack.Test_Parallel"></class>
+		</classes>
+	</test> 
+
+	<test name="Test One"  preserve-order="true" >
+		<packages>
+			<package name=".*">
+			   <include name="TestNGOnePack" />
+			   <exclude name="TestNGThreePack" />
+			</package> 
+			
+			<package name="TestNGTwoPack" />
+			<package name="TestNGThreePack" />
+		</packages>
+	</test> 
+</suite>
+
+```
